@@ -51,9 +51,11 @@ function extractJSON(text) {
   if (firstBrace === -1 || lastBrace === -1) throw new Error('La IA no devolvió JSON válido.');
   cleaned = cleaned.slice(firstBrace, lastBrace + 1);
 
-  // Arregla backslashes de LaTeX (\(, \), \tfrac, etc.) que no son
-  // secuencias de escape válidas de JSON, para que no rompan el parseo.
-  cleaned = cleaned.replace(/\\(?!["\\/bfnrtu])/g, '\\\\');
+  // Arregla backslashes de LaTeX que no son escapes válidos de JSON.
+  // Solo \" y \\ son escapes legítimos aquí — cualquier otro backslash
+  // (\(, \), \t de \text, \b de \beta, etc.) se duplica para que JSON.parse
+  // lo trate como un backslash literal en vez de una secuencia de control.
+  cleaned = cleaned.replace(/\\(?!["\\])/g, '\\\\');
 
   return JSON.parse(cleaned);
 }
@@ -79,6 +81,8 @@ REQUISITOS DE CALIDAD (muy importantes):
 6. Los pasos de la solución deben ser didácticos: cada paso identifica qué se hace, con qué fórmula, y el resultado parcial.
 7. Usa notación LaTeX para TODA expresión matemática (fórmulas, números con unidades, exponentes), delimitada con \\( ... \\) para inline. Ejemplo: "Un bloque de \\(5\\,\\text{kg}\\) se desliza..."
 8. La pista debe dar una orientación útil (qué fórmula o enfoque usar) SIN revelar el resultado numérico final ni resolver el problema.
+9. IMPORTANTE — backslashes dentro del JSON: cada backslash de LaTeX debe escribirse DUPLICADO dentro de las cadenas del JSON. Ejemplo correcto: "\\\\(x^2\\\\)" y "\\\\text{kg}". Un solo backslash rompe el JSON — es obligatorio duplicarlos todos.
+10. Gráfico opcional: si el tema y el ejercicio se prestan para una gráfica simple 2D (ej. posición o velocidad vs. tiempo en cinemática, una onda y(x), una recta en un circuito V-I), completá el campo "graph". Si no aplica (ej. sistemas 3D, choques, circuitos complejos), poné "graph": null.
 
 FORMATO DE SALIDA — responde ÚNICAMENTE con este JSON, sin texto antes ni después, sin markdown:
 {
@@ -91,8 +95,21 @@ FORMATO DE SALIDA — responde ÚNICAMENTE con este JSON, sin texto antes ni des
   "solution": [
     {"step": "título breve del paso", "detail": "explicación del paso, puede incluir LaTeX inline con \\\\( \\\\)", "formula": "fórmula usada en este paso, en LaTeX sin delimitadores, o cadena vacía si no aplica"}
   ],
-  "hint": "una pista breve, sin revelar la respuesta"
+  "hint": "una pista breve, sin revelar la respuesta",
+  "graph": {
+    "type": "linear | quadratic | sine",
+    "xLabel": "nombre y unidad del eje x, ej: 't (s)'",
+    "yLabel": "nombre y unidad del eje y, ej: 'v (m/s)'",
+    "xMin": número, "xMax": número,
+    "params": {
+      "//linear": "y = m*x + b -> usar {m, b}",
+      "//quadratic": "y = a*x^2 + b*x + c -> usar {a, b, c}",
+      "//sine": "y = amplitude*sin(omega*x + phase) -> usar {amplitude, omega, phase}"
+    }
+  }
 }
+
+El campo "params" debe tener SOLO las claves correspondientes al "type" elegido (m,b para linear / a,b,c para quadratic / amplitude,omega,phase para sine), con valores numéricos coherentes con el ejercicio. Si "graph" no aplica, el valor completo debe ser JSON null (sin el objeto adentro).
 
 El campo "tolerance" es el margen relativo aceptable (0.05 = 5%) para considerar correcta la respuesta del estudiante.
 Genera el ejercicio ahora.`;

@@ -288,3 +288,18 @@ label { display: block; font-size: 0.78rem; color: var(--text2); text-transform:
 
 /* MathJax overrides */
 mjx-container { color: var(--text) !important; }
+
+/* Graph */
+.graph-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 1.4rem;
+  padding: 0.8rem;
+}
+.graph-svg { width: 100%; height: auto; display: block; }
+.graph-axis { stroke: var(--text2); stroke-width: 1; }
+.graph-zero-axis { stroke: var(--border); stroke-width: 1; stroke-dasharray: 3 3; }
+.graph-curve { stroke: var(--accent2); stroke-width: 2.2; }
+.graph-tick-label { fill: var(--text2); font-size: 9px; }
+.graph-axis-label { fill: var(--text); font-size: 10px; font-weight: 600; }

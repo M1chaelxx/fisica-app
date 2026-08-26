@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import MathText, { MathFormula } from '../components/MathText';
+import Graph from '../components/Graph';
 import { generateExercise } from '../lib/api';
 import { addToHistory } from '../lib/storage';
 import { findTopic } from '../data/topics';
@@ -106,6 +107,7 @@ export default function Exercise() {
           </ul>
         </div>
       )}
+      <Graph graph={exercise.graph} />
 
       <div className="form-group">
         <label>Tu respuesta {exercise.answer?.unit ? `(en ${exercise.answer.unit})` : ''}</label>
