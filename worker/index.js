@@ -137,10 +137,15 @@ async function handleGenerate(request, env) {
         { role: 'user', content: prompt },
       ],
       temperature: 0.8,
-      max_tokens: 2048,
+      max_tokens: 3000,
     });
 
-    const rawText = aiResponse.response || aiResponse.result?.response || '';
+    // El shape de la respuesta puede variar; nos aseguramos de terminar
+    // siempre con un string antes de intentar parsear el JSON.
+    let rawText = aiResponse?.response ?? aiResponse?.result?.response ?? aiResponse;
+    if (typeof rawText !== 'string') {
+      rawText = rawText ? JSON.stringify(rawText) : '';
+    }
     if (!rawText) throw new Error('La IA no devolvió contenido.');
 
     const exercise = extractJSON(rawText);
