@@ -51,6 +51,10 @@ function extractJSON(text) {
   if (firstBrace === -1 || lastBrace === -1) throw new Error('La IA no devolvió JSON válido.');
   cleaned = cleaned.slice(firstBrace, lastBrace + 1);
 
+  // Arregla backslashes de LaTeX (\(, \), \tfrac, etc.) que no son
+  // secuencias de escape válidas de JSON, para que no rompan el parseo.
+  cleaned = cleaned.replace(/\\(?!["\\/bfnrtu])/g, '\\\\');
+
   return JSON.parse(cleaned);
 }
 
