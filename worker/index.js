@@ -52,11 +52,15 @@ function extractJSON(text) {
   cleaned = cleaned.slice(firstBrace, lastBrace + 1);
 
   // Arregla backslashes de LaTeX que no son escapes válidos de JSON.
-  // Solo \" y \\ son escapes legítimos aquí — cualquier otro backslash
-  // (\(, \), \t de \text, \b de \beta, etc.) se duplica para que JSON.parse
-  // lo trate como un backslash literal en vez de una secuencia de control.
-  cleaned = cleaned.replace(/\\(?!["\\])/g, '\\\\');
-
+  // Los pares ya válidos (\\ y \") se dejan intactos como unidad — si no,
+  // un \\ ya correcto se procesaba de a un char y se rompía. Cualquier
+  // backslash suelto (\(, \), \t de \text, \b de \beta, etc.) se duplica
+  // para que JSON.parse lo trate como backslash literal, no como control.
+  cleaned = cleaned.replace(/\\\\|\\"|\\(?!["\\])/g, (match) => {
+    if (match.length === 2) return match; // \\ o \" ya válidos, no tocar
+    return '\\\\'; // backslash suelto -> escaparlo
+  });
+  
   return JSON.parse(cleaned);
 }
 
